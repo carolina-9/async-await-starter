@@ -1,8 +1,7 @@
 // helper function to semantically display the returned data
 function displayUsers(output, id, data){
-    // determine which container on the page we'll be dealing with/the call type
     
-
+    
     // to track the currently displayed page
     let currentPage = 1;
 
@@ -24,6 +23,24 @@ function displayUsers(output, id, data){
     // split the returned data into four arrays, each will represent a "page" of users with three on each page
     // TO DO: divide the data returned into four arrays
 
+    for(let i = 0; i< 12; i++ ) {
+       if(i < 3) {
+        page1.push(data.results[i])
+       } else if (i< 6) {
+        page2.push(data.results[i])
+       } else if(i<9) {
+        page3.push(data.results[i])
+       } else {
+        page4.push(data.results[i])
+       }
+
+       }
+
+       console.log(page1);
+       console.log(page2);
+       console.log(page3);
+       console.log(page4);
+
     // displays each user in a section, with semantic markup for their name, email address, and image
     function displayPage(currentPage){
         // TO DO - complete the code to display the JSON data to the page
@@ -31,48 +48,57 @@ function displayUsers(output, id, data){
         // iterate through the data for the page's array and display it on the page
         
 
+        for (let user of currentPage) {
+            console.log(user);
+
             // create a container to store each user's content as we build our output
-            
+            let userSection = document.createElement("section");
 
             // add a class to that section/each section containing a user
             
-
+            userSection.classList.add("user");
             // create the image that will hold the user image in each section
             
-
+            let profilePhoto = document.createElement("img");
             // set the image attributes so that it will display the correct image
             
-            
+            profilePhoto.src = `${user.picture.large}`;
             // add the image to the current user section
-            
+            profilePhoto.alt = `${user.name.first} ${user.name.last}`;
 
+
+            userSection.appendChild(profilePhoto);
             // create the heading to store the user name in each section
 
+            let userName = document.createElement("h3");
             
             // add the name to the element
             
-            
+            userName.textContent = `${user.name.first} ${user.name.last}`;
             // add the name to the section after the image
-            
-
+            userSection.appendChild(userName);
+    
             // create the email address link for the user in each section
             
-            
+            let emailAddress = document.createElement("a");
             // set the link text and attributes
             
-            
+            emailAddress.textContent = `${user.email}`;
             // add the email address to the section
             
-            
+            emailAddress.href = `mailto:${user.email}`;
 
             // add the completed user section to the page before the pagination controls
             
-
+            userSection.appendChild(emailAddress);
             // empty the section of content to get it ready for the next user
-            
-        
-    }
 
+            userContainer.appendChild(userSection);
+
+            userSection = "";
+    }
+        
+}
     // get each of the links from the pagination and add event listeners to handle the pagination
     let buttons = document.querySelectorAll("#" + id + " .btn");
 
@@ -112,8 +138,8 @@ function displayUsers(output, id, data){
         buttons[newPage].classList.add("current-page");
         buttons[newPage].ariaCurrent = "true";
         buttons[newPage].ariaLabel = "Current Page, page " + newPage;
+    
     }
-
     // display the first page by default when the content loads, after clearing out any previous content just in case, and make sure to add the currentPage class to the button for page one and remove from all of the other buttons
     userContainer.nodeValue = "";
     displayPage(page1);
@@ -228,8 +254,45 @@ function displayUsers(output, id, data){
 // TO DO - Complete the code to call the API and display the returned data on the page in the correct place
 
 
+fetch("https://randomuser.me/api/?results=12&nat=us,gb")
+.then(response => response.json())
+.then(data => {
+    console.log(data);
+    console.dir(data.results);
+    displayUsers("userPage2", "pagination2", data);
+})
+.catch(err => {
+    console.error(err);
+});
+
 // async/await call to the same API
 // TO DO - Complete the code to call the API using an async function
 
+async function getUsers() {
+    // fetch the data from API
+
+    let response = await fetch("https://randomuser.me/api/?results=12&nat=us,gb");
+
+    // check for error
+
+    if(response.error) {
+        throw new Error(`${response.error}`);
+    }
+
+    return await response.json();
+
+}
+
 // call our async function and handle the returned promise 
 // TO DO - Complete the code to handle the data returned from the API and display the returned data on the page in the correct place
+
+
+getUsers() 
+     .then (json => {
+        console.log(json);
+
+        // display the json to the oage using the helper function
+
+        displayUsers("userPage2", "pagination2", json);
+     })
+     .catch(e => console.error(e));
